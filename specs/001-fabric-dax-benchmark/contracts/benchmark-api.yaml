@@ -1,0 +1,172 @@
+openapi: 3.0.3
+info:
+  title: Fabric DAX Benchmarking API
+  version: 1.0.0
+paths:
+  /resolution/workspaces:
+    get:
+      summary: List workspaces for name resolution
+      responses:
+        '200':
+          description: Workspace list
+  /resolution/workspaces/{workspace_name}/datasets:
+    get:
+      summary: List datasets for a workspace (name-based resolution)
+      parameters:
+        - name: workspace_name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Dataset list
+  /resolution/eventhouses:
+    get:
+      summary: List Eventhouses for name resolution
+      responses:
+        '200':
+          description: Eventhouse list
+  /resolution/eventhouses/{eventhouse_name}/kql-context:
+    get:
+      summary: Resolve KQL database/query context by name/type
+      parameters:
+        - name: eventhouse_name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: KQL context
+  /batches:
+    post:
+      summary: Create a benchmark batch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchCreateRequest'
+      responses:
+        '201':
+          description: Batch created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Batch'
+  /batches/{batch_id}/execute:
+    post:
+      summary: Execute all runs in a batch
+      parameters:
+        - name: batch_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Batch execution started
+  /batches/{batch_id}/telemetry/refresh:
+    post:
+      summary: Retrieve telemetry for a batch (with retries as needed)
+      parameters:
+        - name: batch_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Telemetry records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TelemetryRecord'
+  /batches/{batch_id}/report:
+    get:
+      summary: Get report summary for a batch
+      parameters:
+        - name: batch_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Report summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportSummary'
+
+components:
+  schemas:
+    BatchCreateRequest:
+      type: object
+      required: [workspace_name, dataset_names, run_type, dax_paths]
+      properties:
+        workspace_name:
+          type: string
+        dataset_names:
+          type: array
+          items:
+            type: string
+          minItems: 2
+        run_type:
+          type: string
+          enum: [cold, warm]
+        dax_paths:
+          type: array
+          items:
+            type: string
+    Batch:
+      type: object
+      required: [batch_id, dataset_ids, run_type, status]
+      properties:
+        batch_id:
+          type: string
+        dataset_ids:
+          type: array
+          items:
+            type: string
+        run_type:
+          type: string
+          enum: [cold, warm]
+        status:
+          type: string
+          enum: [pending, running, completed, completed_with_failures, failed]
+    TelemetryRecord:
+      type: object
+      required: [run_id, batch_id, dataset_id, dax_name, dax_group, run_type, timestamp, duration_ms]
+      properties:
+        run_id:
+          type: string
+        batch_id:
+          type: string
+        dataset_id:
+          type: string
+        dax_name:
+          type: string
+        dax_group:
+          type: string
+        run_type:
+          type: string
+          enum: [cold, warm]
+        timestamp:
+          type: string
+          format: date-time
+        duration_ms:
+          type: number
+    ReportSummary:
+      type: object
+      required: [batch_id, success_count, failure_count]
+      properties:
+        batch_id:
+          type: string
+        success_count:
+          type: integer
+        failure_count:
+          type: integer
