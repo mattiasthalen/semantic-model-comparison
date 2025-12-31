@@ -1,1 +1,3 @@
-.codex
+.codex/*
+!.codex/
+!.codex/config.toml
