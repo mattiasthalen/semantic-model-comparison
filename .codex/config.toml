@@ -1,3 +1,6 @@
 [mcp_servers."microsoft-docs"]
 url = "https://learn.microsoft.com/api/mcp"
 type = "http"
+
+[projects."/home/mattiasthalen/repos/semantic-model-comparison"]
+trust_level = "trusted"
