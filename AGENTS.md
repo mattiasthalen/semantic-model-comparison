@@ -3,6 +3,7 @@
 Auto-generated from all feature plans. Last updated: 2025-12-31
 
 ## Active Technologies
+- N/A (local `dax/` files only) (001-fabric-dax-benchmark)
 
 - Python 3.11 + marimo, pandas, numpy, plotly, httpx, uuid6, azure-identity, (001-fabric-dax-benchmark)
 
@@ -22,6 +23,7 @@ cd src [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLO
 Python 3.11: Follow standard conventions
 
 ## Recent Changes
+- 001-fabric-dax-benchmark: Added Python 3.11 + marimo, pandas, numpy, plotly, httpx, uuid6, azure-identity,
 
 - 001-fabric-dax-benchmark: Added Python 3.11 + marimo, pandas, numpy, plotly, httpx, uuid6, azure-identity,
 

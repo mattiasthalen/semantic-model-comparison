@@ -89,6 +89,18 @@ behavioral differences and avoid declaring a winner.
 - Q: When may telemetry logs be retrieved? → A: Telemetry may be retrieved after runs
   complete and/or with retries, but must correlate every recorded run by batch_id and
   run_id.
+- Q: What should ds represent? → A: ds MUST be the semantic model ID, and the dataset
+  display name MUST also be recorded separately.
+- Q: Should execution and telemetry use separate authentication? → A: Yes. Execution
+  access and telemetry query access MUST use separate authentication flows/credentials.
+- Q: How should DAX execution be performed? → A: Use a supported Fabric execution
+  interface for DAX queries, with implementation details defined in the plan.
+- Q: How should required datasets be identified? → A: Resolve datasets by name at
+  runtime and cache the resolved IDs for the entire run.
+- Q: Should implementation live in a single notebook file? → A: Yes. Use a single
+  notebook report file by default; no separate package structure.
+- Q: Which cells may produce visible output? → A: Only narrative/report cells produce
+  visible output; implementation and tests are silent.
 
 ## Requirements *(mandatory)*
 
@@ -101,15 +113,26 @@ tests where applicable. Performance work MUST be data-driven and documented.
 - **FR-001**: The system MUST benchmark two or more Microsoft Fabric semantic model
   datasets using a shared DAX query suite. Acceptance: For any batch, all datasets have
   one run per DAX query in the suite.
-- **FR-002**: The primary artifact MUST be a marimo notebook that reads as a narrative
-  report with prose-first structure and supporting figures/tables. Acceptance: A reader
-  can identify methodology, results, and conclusions without executing the notebook.
+- **FR-001a**: Required datasets (Star Schema, Unified Star Schema) MUST be resolved by
+  name at runtime and their semantic model IDs cached for the entire batch execution.
+  Acceptance: Name resolution occurs once per dataset per batch and IDs remain stable
+  for all runs in that batch.
+- **FR-002**: The primary artifact MUST be a single notebook report that reads as a
+  narrative with prose-first structure and supporting figures/tables. Acceptance: A
+  reader can identify methodology, results, and conclusions without executing the
+  notebook.
+- **FR-002a**: The implementation MUST live in a single notebook report file by
+  default; no separate package structure is used unless explicitly added later.
+  Acceptance: Core logic exists only in the notebook file.
 - **FR-003**: The default, non-executed view MUST communicate intent, approach, and
   conclusions without requiring execution. Acceptance: The non-executed view contains
   explicit intent, approach, and conclusion sections.
 - **FR-004**: Execution logic MUST be isolated to clearly marked sections distinct from
   narrative content. Acceptance: Narrative sections remain readable without executing
   any run logic.
+- **FR-004a**: Only narrative/report cells MAY produce visible output; implementation
+  and test cells MUST be silent. Acceptance: Code execution cells produce no visible
+  output in the default view.
 - **FR-005**: Each batch MUST be identified by a globally unique batch_id and each run
   by a globally unique run_id. Acceptance: No two runs or batches share identifiers in
   a recorded session.
@@ -124,12 +147,13 @@ tests where applicable. Performance work MUST be data-driven and documented.
   reproducible.
 - **FR-009**: Each run MUST be tagged with batch_id, run_id, dataset identifier (ds),
   run_type, dax_name, and dax_group, and this metadata MUST be propagated end-to-end.
+  ds MUST be the semantic model ID, and the dataset display name MUST also be recorded.
   Acceptance: Telemetry and report outputs include these fields for every run.
 - **FR-010**: run_type MUST be one of: cold, warm. The distinction MUST reflect
   execution context (e.g., cache state) and be applied consistently across all datasets
   within a batch. Acceptance: A batch contains only one run_type and it is consistent
   across all runs.
-- **FR-011**: Runs MUST be executed via the Microsoft Fabric execution interface, and
+- **FR-011**: Runs MUST be executed via a supported Fabric execution interface, and
   success MUST be determined solely by execution success status without inspecting
   query results. Acceptance: Run success is derived from execution status only.
 - **FR-012**: After a batch completes, the system MUST retrieve telemetry logs (with
@@ -149,6 +173,9 @@ tests where applicable. Performance work MUST be data-driven and documented.
   counts of failed vs. successful runs and lists failed run identifiers.
 - **FR-017**: The report MUST avoid validating query correctness or declaring a winner.
   Acceptance: Conclusions describe behavioral differences without ranking datasets.
+- **FR-018**: Execution access and telemetry query access MUST use separate
+  authentication flows or credentials. Acceptance: The configuration explicitly
+  supports distinct auth inputs for execution and telemetry.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -157,7 +184,7 @@ tests where applicable. Performance work MUST be data-driven and documented.
 - **Dataset**: A Microsoft Fabric semantic model selected for benchmarking.
 - **DAX Query**: A file-based query with derived dax_name and dax_group.
 - **Telemetry Record**: Runtime and timing metrics correlated to a run.
-- **Report Section**: Narrative or results content in the marimo notebook.
+- **Report Section**: Narrative or results content in the notebook report.
 
 ## Glossary
 

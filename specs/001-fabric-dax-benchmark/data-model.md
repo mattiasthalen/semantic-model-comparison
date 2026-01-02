@@ -9,6 +9,7 @@
 - **Fields**:
   - batch_id (UUIDv7, required, unique)
   - created_at (timestamp, required)
+  - workspace_name (string, required, default TPC-DS)
   - datasets (list of DatasetRef, required, min 2)
   - dax_suite (list of DaxQueryRef, required, non-empty)
   - run_type (enum: cold | warm, required)
@@ -23,7 +24,8 @@
 - **Fields**:
   - run_id (UUIDv7, required, unique)
   - batch_id (UUIDv7, required, FK -> Batch.batch_id)
-  - dataset_id (string, required)
+  - dataset_id (string, required, semantic model ID)
+  - dataset_display_name (string, required)
   - run_type (enum: cold | warm, required)
   - dax_name (string, required)
   - dax_group (string, required)
@@ -40,11 +42,10 @@
 ### DatasetRef
 
 - **Fields**:
-  - dataset_name (string, required)
-  - dataset_id (string, required once resolved)
-  - display_name (string, optional)
+  - dataset_display_name (string, required)
+  - dataset_id (string, required once resolved, semantic model ID)
 - **Validation rules**:
-  - dataset_name must be non-empty
+  - dataset_display_name must be non-empty
 
 ### DaxQueryRef
 
@@ -61,7 +62,8 @@
 - **Fields**:
   - run_id (UUIDv7, required)
   - batch_id (UUIDv7, required)
-  - dataset_id (string, required)
+  - dataset_id (string, required, semantic model ID)
+  - dataset_display_name (string, optional)
   - dax_name (string, required)
   - dax_group (string, required)
   - run_type (enum: cold | warm, required)

@@ -1,74 +1,73 @@
 # Research: Fabric DAX Benchmarking Report
 
-**Date**: 2025-12-31
-**Context**: Resolve technical context choices for the marimo-based benchmark report.
+**Date**: 2025-12-31  
+**Context**: Resolve technical choices for executing DAX via REST and retrieving
+telemetry via KQL in a notebook-first delivery.
 
-## Decision 1: Language/Version
+## Decision 1: DAX Execution API
 
-- **Decision**: Python 3.11
-- **Rationale**: marimo is Python-native; Python provides strong data tooling for
-  telemetry analysis and visualization.
-- **Alternatives considered**: Python 3.10, Python 3.12
+- **Decision**: Use Power BI REST API `executeQueries` in group for DAX execution.
+- **Rationale**: The API is the supported REST interface for running DAX queries
+  against a dataset in a workspace, with explicit limits and error behavior.
+- **Alternatives considered**: Sempy evaluate_dax, XMLA, CLI tools.
+- **References**:
+  - https://learn.microsoft.com/en-us/rest/api/power-bi/datasets/execute-queries-in-group
 
-## Decision 2: Dependency Management
+## Decision 2: DAX API Limits & Throttling
 
-- **Decision**: uv
-- **Rationale**: Fast, modern Python dependency management aligned with CLI workflows.
-- **Alternatives considered**: pip + venv, poetry
+- **Decision**: Run sequentially and throttle to stay under 120 requests/min per user.
+- **Rationale**: The executeQueries API is limited to 120 requests/min and one query
+  per call; sequential execution avoids concurrency issues.
+- **Alternatives considered**: Parallel calls with backoff.
+- **References**:
+  - https://learn.microsoft.com/en-us/rest/api/power-bi/datasets/execute-queries-in-group
 
-## Decision 3: Primary Dependencies
+## Decision 3: KQL Telemetry Query Interface
 
-- **Decision**: marimo, pandas, numpy, plotly, httpx, uuid6, azure-identity,
-  python-dotenv, respx
-- **Rationale**: marimo is the narrative app; pandas/numpy aggregate telemetry; plotly
-  provides portable visuals; httpx is preferred for REST calls; uuid6 provides UUIDv7;
-  azure-identity supplies DefaultAzureCredential; python-dotenv supports local .env;
-  respx mocks httpx for offline tests.
-- **Alternatives considered**: matplotlib, seaborn, requests, uuid7
+- **Decision**: Use KQL REST API `/v1/rest/query` against the Eventhouse query service.
+- **Rationale**: KQL REST is the documented HTTPS query interface for Fabric KQL
+  databases.
+- **Alternatives considered**: Kqlmagic, Spark connectors.
+- **References**:
+  - https://learn.microsoft.com/en-us/kusto/api/rest
 
-## Decision 4: Authentication
+## Decision 4: Resolve Eventhouse Query Service URI
 
-- **Decision**: DefaultAzureCredential (azure-identity)
-- **Rationale**: Standard Azure auth flow for local/dev and managed identity contexts.
-- **Alternatives considered**: client secret only, managed identity only
+- **Decision**: Call Fabric Eventhouse Get API to retrieve `queryServiceUri`.
+- **Rationale**: The Eventhouse GET response provides the `queryServiceUri` needed to
+  send KQL REST queries.
+- **Alternatives considered**: Hard-coded query URI.
+- **References**:
+  - https://learn.microsoft.com/en-us/rest/api/fabric/eventhouse/items/get-eventhouse
 
-## Decision 5: Configuration Strategy
+## Decision 5: Authentication Strategy
 
-- **Decision**: Secrets from environment variables (optionally .env); non-secrets from
-  marimo inputs with defaults or hard-coded values.
-- **Rationale**: Keeps secrets out of source while maintaining convenience for local
-  use.
-- **Alternatives considered**: all config in env vars, config files only
+- **Decision**: Use DefaultAzureCredential and separate auth flows for REST and KQL.
+- **Rationale**: Aligns with project constraints and allows distinct scopes for Power
+  BI REST and KQL REST access.
+- **Alternatives considered**: Client secret only, shared token for both services.
 
-## Decision 6: Testing and Mocking
+## Decision 6: Dependency Management
 
-- **Decision**: pytest with respx and static fixtures for external calls
-- **Rationale**: TDD is required; respx supports httpx mocking; static fixtures allow
-  offline tests without CI record mode.
-- **Alternatives considered**: unittest, pytest-httpx, vcrpy
+- **Decision**: Use uv for dependency management.
+- **Rationale**: Fast, reproducible installs and alignment with CLI workflows.
+- **Alternatives considered**: pip + venv, poetry.
 
-## Decision 7: Target Platform
+## Decision 7: Configuration Strategy
 
-- **Decision**: Desktop (Linux/macOS/Windows)
-- **Rationale**: marimo runs locally and is suitable for a portable, readable report.
-- **Alternatives considered**: hosted web app
+- **Decision**: Use environment variables with optional `.env` for secrets; marimo
+  inputs for non-secret defaults.
+- **Rationale**: Keeps secrets out of source while allowing interactive setup.
+- **Alternatives considered**: config files only, environment-only.
 
-## Decision 8: Performance Goals
+## Decision 8: Testing Strategy
 
-- **Decision**: Generate report outputs for up to 100 runs within 5 minutes
-- **Rationale**: Keeps feedback loops fast while accommodating typical batch sizes.
-- **Alternatives considered**: no explicit goal, 10-minute target
+- **Decision**: pytest with respx/httpx fixtures; tests live in silent notebook cells.
+- **Rationale**: TDD compliance with deterministic, offline tests.
+- **Alternatives considered**: vcrpy, pytest-httpx.
 
-## Decision 9: Scale/Scope Assumptions
+## Decision 9: Dataset Resolution
 
-- **Decision**: 2-10 datasets, 10-100 DAX queries, hundreds of runs per batch
-- **Rationale**: Aligns with expected benchmarking sessions while remaining practical
-  for local execution.
-- **Alternatives considered**: single dataset, thousands of queries
-
-## Decision 10: Name-Based Resolution
-
-- **Decision**: Resolve workspace, dataset, Eventhouse, and KQL context by name using
-  Fabric list endpoints at runtime.
-- **Rationale**: Avoids hard-coded IDs and keeps inputs human-friendly.
-- **Alternatives considered**: manual ID entry, static configuration files
+- **Decision**: Resolve datasets by name at runtime and cache IDs for the full batch.
+- **Rationale**: Avoids hard-coded IDs while keeping runs stable within a batch.
+- **Alternatives considered**: manual ID entry.
