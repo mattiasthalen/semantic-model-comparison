@@ -5,41 +5,28 @@
 
 ## Summary
 
-Deliver a single marimo notebook (`.py`) that reads as a narrative report while running
-sequential DAX benchmarks via the Fabric REST API against the TPC-DS workspace datasets
-Star Schema and Unified Star Schema (supporting additional datasets later). The
-notebook loads DAX files from `dax/`, derives `dax_name` and `dax_group`, runs each DAX
-query per dataset with UUIDv7 `batch_id` and `run_id` tagging, and then queries
-telemetry via KQL against Eventstream Monitoring_Eventstream / Eventhouse Monitoring
-Eventhouse / KQL database Monitoring KQL database. Only narrative/report cells render
-visible output; implementation and tests live in silent cells. Dependencies are managed
-with uv and HTTP calls use httpx with offline-testable mocks.
+Deliver a single marimo notebook that reads as a narrative report without execution, runs a shared DAX suite sequentially across multiple Fabric semantic model datasets, and correlates telemetry by batch_id/run_id to produce median-based comparisons. The plan is MVP-first and strongly iterative, with each vertical slice producing a runnable notebook state and an in-notebook green pytest run before moving to the next slice. Endpoint/KQL details are intentionally left as small TODO contracts when unknown.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: marimo, pandas, numpy, plotly, httpx, uuid6, azure-identity,
-python-dotenv, respx, pytest  
-**Storage**: N/A (local `dax/` files only)  
-**Testing**: pytest (offline; respx/httpx mocks, deterministic fixtures)  
-**Target Platform**: Local desktop (Linux/macOS/Windows)  
-**Project Type**: Single marimo notebook (`.py`) at repo root  
-**Performance Goals**: Complete up to ~100 sequential runs in under 5 minutes; throttle
-to remain below Power BI REST API limits (120 requests/min per user).  
-**Constraints**: Single notebook file (no `src/`), REST + KQL use separate auth,
-workspace name fixed to `TPC-DS`, datasets resolved by name and cached per batch,
-env-var config with optional `.env`, offline tests only.  
-**Scale/Scope**: 2 datasets initially; 1-100 DAX files; sequential execution only.
+**Language/Version**: Python 3.11
+**Primary Dependencies**: marimo, pandas, numpy, plotly, httpx, uuid6, azure-identity, pytest
+**Storage**: Local files under `/home/mattiasthalen/repos/semantic-model-comparison/dax/`
+**Testing**: pytest executed against the notebook via marimo pytest-in-notebook (`uv run pytest <notebook.py>`)
+**Target Platform**: Local execution on Linux/macOS/Windows with network access to Fabric
+**Project Type**: Single notebook report file (no `src/` package by default)
+**Performance Goals**: Accurate, reproducible median runtime analysis; sequential execution with clear run ordering
+**Constraints**: Offline CI tests using mocks/recorded fixtures; implementation/test cells must be silent; uv-only dependency management
+**Scale/Scope**: 2+ datasets, tens of DAX files, sequential execution, report-first UX
 
 ## Constitution Check
 
-- TDD plan: tests defined in silent notebook cells before implementation changes; core
-  functions are pure and unit-testable with mocked HTTP.
-- Small, single-purpose functions with explicit data flow (e.g., DAX loading, dataset
-  resolution, REST execution, telemetry query, analysis).
-- UX consistency: narrative/report cells show status, progress, and errors explicitly;
-  implementation cells are silent.
-- Performance work: rate-limit awareness and telemetry-driven measurements documented.
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+- Confirm TDD plan (tests written first, unit-testable core, deterministic tests). **PASS**: Each slice starts with notebook test cells, using mocks/fixtures for external calls.
+- Confirm design favors small, single-purpose functions with explicit data flow. **PASS**: Core logic isolated into small helpers in non-test cells.
+- Confirm UX consistency expectations (naming, structure, explicit status/errors). **PASS**: Narrative sections are explicit; execution status/errors are recorded and surfaced in report tables.
+- Confirm performance work is data-driven with measurement plan if needed. **PASS**: Medians computed from telemetry; no premature optimization.
 
 ## Project Structure
 
@@ -47,95 +34,90 @@ env-var config with optional `.env`, offline tests only.
 
 ```text
 /home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/
-├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (/speckit.plan command)
-├── data-model.md        # Phase 1 output (/speckit.plan command)
-├── quickstart.md        # Phase 1 output (/speckit.plan command)
-├── contracts/           # Phase 1 output (/speckit.plan command)
-└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── fabric-exec.todo.md
+│   └── fabric-telemetry.todo.md
+└── tasks.md
 ```
 
 ### Source Code (repository root)
 
 ```text
 /home/mattiasthalen/repos/semantic-model-comparison/
-├── benchmark_report.py
+├── fabric_dax_benchmark.py
 └── dax/
     └── single_fact/
         └── top_n_sales.dax
 ```
 
-**Structure Decision**: Single marimo notebook (`benchmark_report.py`) is the only
-primary code artifact. All implementation logic and tests live in silent notebook
-cells; narrative/report cells render the report output.
+**Structure Decision**: Single marimo notebook at repository root to satisfy the single-artifact requirement, with DAX files under the existing `dax/` directory.
 
-## Phase 0: Outline & Research
+## Iterative MVP-First Plan
 
-- Confirm Fabric REST API usage for DAX execution, including rate limits and required
-  scopes.
-- Confirm KQL REST API endpoint format for Eventhouse queries.
-- Confirm Eventhouse lookup to obtain `queryServiceUri` for KQL query execution.
-- Consolidate decisions in `research.md`.
+Each slice ends with a runnable notebook state and a green in-notebook pytest run via `uv run pytest /home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`.
 
-**References**:
-- `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/research.md`
+### Slice 1: Notebook boot + narrative skeleton (no execution)
 
-## Phase 1: Design & Contracts
+- Create marimo notebook with narrative/report cells only producing output.
+- Include intent, methodology, results (placeholder), and conclusions sections readable without execution.
+- Add implementation cells marked silent; no external calls.
 
-- Update `data-model.md` for batch/run IDs, dataset resolution + caching, DAX
-  identifiers, and telemetry correlation fields.
-- Update `contracts/benchmark-api.yaml` to document outbound REST calls:
-  Power BI executeQueries and KQL REST query endpoints.
-- Update `quickstart.md` to reflect uv usage, env vars, and notebook execution path.
-- Run `/home/mattiasthalen/repos/semantic-model-comparison/.specify/scripts/bash/update-agent-context.sh codex`.
+### Slice 2: Auth/config (tests first)
 
-**References**:
-- `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/data-model.md`
-- `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/contracts/benchmark-api.yaml`
-- `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/quickstart.md`
+- Tests: env var loading and validation for execution auth and telemetry auth (separate flows). Use mock env values.
+- Implement config loader from env vars; include a minimal connectivity check stub with TODO endpoint placeholder.
+- Keep stub silent and non-executed by default.
 
-## Phase 2: Implementation Plan
+### Slice 3: GUID lookup for datasets (tests first)
 
-1. Create `benchmark_report.py` marimo notebook skeleton with narrative sections and
-   silent implementation/test cells. References: `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/spec.md`
-2. Implement config loader (env vars + optional `.env`) with defaults for workspace and
-   dataset names (TPC-DS, Star Schema, Unified Star Schema). References:
-   `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/quickstart.md`,
-   `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/spec.md`
-3. Implement DAX loader to enumerate `dax/` files, derive `dax_name` and `dax_group`,
-   and ensure `dax/single_fact/top_n_sales.dax` is included. References:
-   `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/spec.md`
-4. Implement dataset resolution by name in workspace; cache semantic model IDs and
-   display names for the full batch. References:
-   `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/data-model.md`,
-   `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/spec.md`
-5. Implement DAX execution client using Fabric REST API executeQueries; generate
-   UUIDv7 `batch_id` and `run_id` and tag all runs with required metadata. References:
-   `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/research.md`,
-   `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/contracts/benchmark-api.yaml`,
-   `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/data-model.md`
-6. Implement telemetry retrieval via KQL REST query against Monitoring Eventhouse /
-   Monitoring KQL database; correlate by `batch_id` and `run_id` with retries.
-   References:
-   `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/research.md`,
-   `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/contracts/benchmark-api.yaml`,
-   `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/data-model.md`
-7. Implement analysis and report visuals (median metrics; groupings by dataset,
-   dax_group, run_type, dax_name) with explicit failed-run reporting. References:
-   `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/spec.md`,
-   `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/data-model.md`
-8. Implement deterministic tests in silent cells using respx/httpx fixtures for REST
-   and KQL calls; confirm offline execution. References:
-   `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/research.md`,
-   `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/quickstart.md`
+- Tests: mocked REST responses resolve workspace "TPC-DS" and datasets "Star Schema" and "Unified Star Schema" by name, cache IDs per batch.
+- Implement name resolution helper with TODO endpoint contracts.
 
-**References**:
-- `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/spec.md`
-- `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/data-model.md`
-- `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/research.md`
-- `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/contracts/benchmark-api.yaml`
-- `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/quickstart.md`
+### Slice 4: DAX loading (tests first)
+
+- Tests: load DAX files from `dax/` and deterministically derive `dax_name` and `dax_group` from path.
+- Implement file discovery and parsing helpers.
+
+### Slice 5: Single DAX execution (tests first)
+
+- Tests: UUIDv7 batch_id per session and UUIDv7 run_id per execution; ensure tags include batch_id, run_id, ds, run_type, dax_name, dax_group.
+- Implement sequential execution stub via REST with success determined by HTTP status only; TODO endpoint contract.
+
+### Slice 6: Expand to all datasets + all DAX files (tests first)
+
+- Tests: run_type tagging (cold/warm), continue-on-error behavior, complete coverage over datasets and queries.
+- Implement loop over datasets and DAX suite; record failures and continue.
+
+### Slice 7: Telemetry retrieval + correlation (tests first)
+
+- Tests: mocked/recorded responses for telemetry retrieval; correlation by batch_id/run_id with missing markers.
+- Implement telemetry query using TODO KQL contract against Eventstream/Eventhouse/KQL DB; keep auth separate.
+
+### Slice 8: Analysis + plots (tests first)
+
+- Tests: aggregation logic for medians and groupings (dataset, dax_group x dataset, run_type x dataset, dax_name x dataset).
+- Implement pandas aggregation and plotly figures; narrative cells render figures/tables.
+
+## MVP Deliverable
+
+A single notebook that renders a narrative report without execution, can execute a batch sequentially with mocked tests offline, correlates telemetry by batch_id/run_id, and produces median-based comparisons, while keeping implementation/test cells silent.
+
+## Non-Goals
+
+- Validating DAX query correctness
+- Persisting results to long-term storage
+- Automatic tuning or declaring a winner
+
+## Open TODO Contracts (Minimal)
+
+- TODO(Fabric Exec Endpoint): exact REST path, headers, and response schema for DAX execution
+- TODO(Fabric Dataset Lookup): exact REST path for workspace/dataset name resolution
+- TODO(Fabric Telemetry KQL): final KQL schema and query text for runtime metrics
 
 ## Complexity Tracking
 
-No constitution violations identified.
+None.
