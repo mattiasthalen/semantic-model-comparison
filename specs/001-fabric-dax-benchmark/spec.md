@@ -125,8 +125,9 @@ tests where applicable. Performance work MUST be data-driven and documented.
   default; no separate package structure is used unless explicitly added later.
   Acceptance: Core logic exists only in the notebook file.
 - **FR-003**: The default, non-executed view MUST communicate intent, approach, and
-  conclusions without requiring execution. Acceptance: The non-executed view contains
-  explicit intent, approach, and conclusion sections.
+  conclusions without requiring execution, and MUST include explicit intent, approach,
+  and conclusion sections distinct from results placeholders. Acceptance: The
+  non-executed view contains explicit intent, approach, and conclusion sections.
 - **FR-004**: Execution logic MUST be isolated to clearly marked sections distinct from
   narrative content. Acceptance: Narrative sections remain readable without executing
   any run logic.

@@ -39,6 +39,7 @@ Deliver a single marimo notebook that reads as a narrative report without execut
 ├── data-model.md
 ├── quickstart.md
 ├── contracts/
+│   ├── benchmark-api.yaml (legacy reference; verify alignment or deprecate)
 │   ├── fabric-exec.todo.md
 │   └── fabric-telemetry.todo.md
 └── tasks.md

@@ -67,33 +67,37 @@ description: "Task list for Fabric DAX Benchmarking Report"
 
 ### Slice 2: Auth/config (tests first)
 
-- [ ] T010 [US2] Add failing test-only cells for env-based execution/telemetry auth config and connectivity check stub in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
-- [ ] T011 [US2] Implement config loader and connectivity check stub using TODO endpoint contract in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
-- [ ] T012 [US2] Run tests and ensure green for auth/config via `uv run pytest /home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T010 [US2] Add failing test-only cells for env-based execution/telemetry auth config and connectivity check success criteria in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T011 [US2] Add failing integration-test-only cell for connectivity check using mocked HTTP responses in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T012 [US2] Implement config loader and connectivity check stub using TODO endpoint contract with explicit success/failure behavior in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T013 [US2] Run tests and ensure green for auth/config via `uv run pytest /home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
 
 ### Slice 3: GUID lookup for datasets (tests first)
 
-- [ ] T013 [US2] Add failing test-only cells for workspace/dataset name resolution with mocked REST responses and per-batch caching in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
-- [ ] T014 [US2] Implement dataset resolver with TODO endpoint contract and cache in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
-- [ ] T015 [US2] Run tests and ensure green for dataset lookup via `uv run pytest /home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T014 [US2] Add failing test-only cells for workspace/dataset name resolution with mocked REST responses and per-batch caching in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T015 [US2] Add failing integration-test-only cell for dataset lookup using recorded fixtures in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T016 [US2] Implement dataset resolver with TODO endpoint contract and cache in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T017 [US2] Run tests and ensure green for dataset lookup via `uv run pytest /home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
 
 ### Slice 4: DAX loading (tests first)
 
-- [ ] T016 [US2] Add failing test-only cells for DAX file loading and deterministic dax_name/dax_group derivation from `/home/mattiasthalen/repos/semantic-model-comparison/dax/` in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
-- [ ] T017 [US2] Implement DAX discovery and parsing helpers in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
-- [ ] T018 [US2] Run tests and ensure green for DAX loading via `uv run pytest /home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T018 [US2] Add failing test-only cells for DAX file loading and deterministic dax_name/dax_group derivation from `/home/mattiasthalen/repos/semantic-model-comparison/dax/` in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T019 [US2] Add failing test-only cell for missing/unreadable DAX file handling (edge case) in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T020 [US2] Implement DAX discovery and parsing helpers with explicit missing-file error recording in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T021 [US2] Run tests and ensure green for DAX loading via `uv run pytest /home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
 
 ### Slice 5: Single DAX execution (tests first)
 
-- [ ] T019 [US2] Add failing test-only cells for UUIDv7 batch/run IDs and tag propagation (batch_id, run_id, ds, run_type, dax_name, dax_group) in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
-- [ ] T020 [US2] Implement single-run execution stub using TODO Fabric exec contract (success by HTTP status only) in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
-- [ ] T021 [US2] Run tests and ensure green for single execution via `uv run pytest /home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T022 [US2] Add failing test-only cells for UUIDv7 batch/run IDs, metadata tags, and dataset_name propagation in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T023 [US2] Add failing integration-test-only cell for execution stub behavior (HTTP status only) in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T024 [US2] Implement single-run execution stub using TODO Fabric exec contract (success by HTTP status only) and record dataset_name in run metadata in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T025 [US2] Run tests and ensure green for single execution via `uv run pytest /home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
 
 ### Slice 6: Expand to all datasets + all DAX files (tests first)
 
-- [ ] T022 [US2] Add failing test-only cells for run_type tagging (cold/warm), sequential ordering, and continue-on-error behavior in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
-- [ ] T023 [US2] Implement full batch execution loop over datasets and DAX suite with failure recording in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
-- [ ] T024 [US2] Run tests and ensure green for batch execution via `uv run pytest /home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T026 [US2] Add failing test-only cells for run_type consistency across batch, sequential ordering, continue-on-error behavior, and dataset unavailable mid-batch (edge case) in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T027 [US2] Implement full batch execution loop over datasets and DAX suite with run_type consistency checks, dataset-unavailable handling, and failure recording in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T028 [US2] Run tests and ensure green for batch execution via `uv run pytest /home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
 
 **Checkpoint**: User Story 2 is fully functional and independently testable
 
@@ -107,15 +111,16 @@ description: "Task list for Fabric DAX Benchmarking Report"
 
 ### Slice 7: Telemetry retrieval + correlation (tests first)
 
-- [ ] T025 [US3] Add failing test-only cells for telemetry retrieval, correlation by batch_id/run_id, and missing markers in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
-- [ ] T026 [US3] Implement telemetry client stub using TODO KQL contract and correlation logic in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
-- [ ] T027 [US3] Run tests and ensure green for telemetry retrieval via `uv run pytest /home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T029 [US3] Add failing test-only cells for telemetry retrieval, correlation by batch_id/run_id, required timestamp/duration fields, retry behavior, and missing markers in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T030 [US3] Add failing integration-test-only cell for telemetry retrieval using recorded fixtures in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T031 [US3] Implement telemetry client stub using TODO KQL contract with retry logic, required field normalization, and correlation logic in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T032 [US3] Run tests and ensure green for telemetry retrieval via `uv run pytest /home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
 
 ### Slice 8: Analysis + plots (tests first)
 
-- [ ] T028 [US3] Add failing test-only cells for median aggregation and required groupings (dataset, dax_group x dataset, run_type x dataset, dax_name x dataset) in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
-- [ ] T029 [US3] Implement aggregation helpers and plotly figures; render results in narrative cells in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
-- [ ] T030 [US3] Run tests and ensure green for analysis/plots via `uv run pytest /home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T033 [US3] Add failing test-only cells for median aggregation and required groupings (dataset, dax_group x dataset, run_type x dataset, dax_name x dataset) in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T034 [US3] Implement aggregation helpers and plotly figures; render results in narrative cells in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T035 [US3] Run tests and ensure green for analysis/plots via `uv run pytest /home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
 
 **Checkpoint**: User Story 3 is fully functional and independently testable
 
@@ -125,9 +130,10 @@ description: "Task list for Fabric DAX Benchmarking Report"
 
 **Purpose**: Final consistency, clarity, and verification
 
-- [ ] T031 Ensure conclusions emphasize behavioral differences without ranking and summarize failures/missing telemetry in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
-- [ ] T032 Run full notebook test suite and confirm green via `uv run pytest /home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
-- [ ] T033 Validate quickstart commands and adjust if needed in `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/quickstart.md`
+- [ ] T036 Ensure conclusions emphasize behavioral differences without ranking and summarize failures/missing telemetry in `/home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T037 Review `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/contracts/benchmark-api.yaml` for alignment with TODO contracts and document deprecation or alignment in `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/plan.md`
+- [ ] T038 Run full notebook test suite and confirm green via `uv run pytest /home/mattiasthalen/repos/semantic-model-comparison/fabric_dax_benchmark.py`
+- [ ] T039 Validate quickstart commands and adjust if needed in `/home/mattiasthalen/repos/semantic-model-comparison/specs/001-fabric-dax-benchmark/quickstart.md`
 
 ---
 
